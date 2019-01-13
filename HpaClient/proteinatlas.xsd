@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML Schema for The Human Protein Atlas -->
+<!--
+
+Changes between 2.4 and 2.5 (HPA18):
+- Added: Attribute RRID (Research Resource Identifier) to <antibody> where available
+- Changed: Consolidate WB and WB siRNA under westernBlot and change technology attribute differentiate them
+	with values "WB" and "WBsiRNA"
+- Changed: Renamed verification value "validated" to "enhanced"
+
+Changes between 2.3 and 2.4 (HPA17):
+- Added source attribute to various elements to indicate data produced by Human Protein Atlas (HPA)
+- Removed ape-type from tissueExpression and cellExpression, only exists one type (APE)
+- Added color attribute to cell image channels
+- Rename cellToCellVariationIntensity/Spatial to singleCellVariationIntensity/Spatial to match
+	terminology used on site
+- Change to UTF-8
+- Cancer have been renamed to pathology
+
+Changes between 2.2 and 2.3 (HPA16):
+- Rename subcellularLocation and tissueExpression[assayType="cell"] to cellExpression
+- Change technology IH -> IHC, IF -> ICC/IF
+- Removal of level intensity in Subcellular
+- Add cell-to-cell variation attributes to location for ICC/IF cell
+- verification have a new value validated and non-supportive have been renamed to unreliable
+- Add custom data for cell
+- Removed cell siRNA plot since it's not available in its current format anymore
+
+Changes between 2.1 and 2.2 (HPA14):
+- Add Subcellular GFP
+- Add Subcellular siRNA
+- Subcellular celline score is removed
+- Add IH mouse Brain data
+- Add IH tissue Protein localization score
+- Add IH selected antibody image
+- Add RNA tissue category
+- Add Western Blot on siRNA
+- Overall improve WB and protein array data
+- Remove size attribute on imageUrl-element
+- Add image description on some <image>-elements
+
+
+Changes between 2.0 and 2.1 (HPA13):
+- Add protein classes (proteinClasses structure)
+- Add proteinEvidence structure
+- Change verification tag to always use Supportive or Uncertain
+- Add restriction on verification values in the schema
+- Add gene ontology (GO) id's on subcellular location
+- minor edits on element type's
+- Add tag for new IHC score
+-->
+<xs:schema version="2.5" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+	<!-- Definition of the content of the root element The Human Protein Atlas -->
+	<xs:element name="proteinAtlas">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="entry" type="entry-type" maxOccurs="unbounded"/>
+				<xs:element name="copyright" type="xs:string" minOccurs="0"/>
+			</xs:sequence>
+		<!-- schemaVersion of the XML -->
+		<xs:attribute name="schemaVersion" type="xs:decimal" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Definition of Entry (Ensembl gene) element -->
+	<xs:complexType name="entry-type">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="synonym" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="identifier" type="identifier-type" minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="proteinClasses" type="proteinclass-type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="proteinEvidence" type="proteinEvidence-type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="tissueExpression" type="tissueExpression-type" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="cellExpression" type="cellExpressionGene-type" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="rnaExpression" type="rnaExpression-type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="antibody" type="antibody-type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<!-- The Human Protein Atlas version and url to entry in The Human Protein Atlas  -->
+		<xs:attribute name="version" type="xs:string" use="required"/>
+		<xs:attribute name="url" type="xs:anyURI" use="required"/>
+	</xs:complexType>
+
+	<!-- Gene identifier  -->
+	<xs:complexType name="identifier-type">
+		<xs:sequence>
+			<xs:element name="xref" type="xref-type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<!-- Ensembl gene identifier, database name (Ensembl) and Ensembl database version -->
+		<xs:attribute name="id" type="ensg" use="required"/>
+		<xs:attribute name="db" type="xs:string" use="required"/>
+		<xs:attribute name="version" type="xs:string" use="required"/>
+	</xs:complexType>
+	
+	<xs:simpleType name="ensg">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="ENSG[0-9]{11}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- Ensembl crossreferences (referenced database accession id and referenced database name, such as Uniprot/SWISS-PROT) -->
+	<xs:complexType name="xref-type">
+		<xs:attribute name="id" type="xs:string" use="required"/>
+		<xs:attribute name="db" type="xs:string" use="required"/>
+	</xs:complexType>
+	
+	<xs:complexType name="proteinclass-type">
+		<xs:sequence>
+			<xs:element name="proteinClass" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<!-- Source indicates who has generated the data, HPA=Human Protein Atlas -->
+					<xs:attribute name="source" type="xs:string" use="required"/>
+					<xs:attribute name="id" type="xs:string" use="required" />
+					<xs:attribute name="parent_id" type="xs:string" use="required" />
+					<xs:attribute name="name" type="xs:string" use="required" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="proteinEvidence-type">
+		<xs:sequence>
+			<xs:element name="evidence" minOccurs="3" maxOccurs="3">
+				<xs:complexType>
+					<!-- Source indicates who has generated the data, HPA=Human Protein Atlas -->
+					<xs:attribute name="source" type="xs:string" use="required"/>
+					<xs:attribute name="evidence" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="evidence" type="xs:string" use="required"/>
+	</xs:complexType>
+	
+	<xs:simpleType name="evidence-values">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="HPA" />
+			<xs:enumeration value="MS" />
+			<xs:enumeration value="UniProt" />
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<!-- Antibody element -->
+	<xs:complexType name="antibody-type">
+		<xs:sequence>
+			<!-- antigenSequence (amino acid for the protein epitope sequence tag, PrEST), only available for antibodies with id HPANNNNNN (not for CABNNNNNN antibodies) -->
+			<xs:element name="antigenSequence" type="antigenSequence-type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="antibodyTargetWeights" type="targetWeights-type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="tissueExpression" type="tissueExpression-type" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="mouseBrainStaining" type="mouseBrainStaining" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="cellExpression" type="cellExpressionAntibody-type" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="westernBlot" type="westernBlot-type" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="proteinArray" type="proteinArray-type" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+		<!-- Antibody identifier, version of the Human Protein Atlas in which the antibody data was first released and date when the antibody data was first released -->
+		<xs:attribute name="id" type="xs:string" use="required"/>
+		<xs:attribute name="releaseVersion" type="xs:float" use="required"/>
+		<xs:attribute name="releaseDate" type="xs:date" use="required"/>
+		<xs:attribute name="RRID" type="xs:string" use="optional"/>
+	</xs:complexType>
+
+	<xs:complexType name="antigenSequence-type">
+		<xs:annotation>
+			<xs:documentation>
+				Contains the aa sequence of the antigen used to generate this antibody.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<!-- Source indicates who has generated the data, HPA=Human Protein Atlas -->
+				<xs:attribute name="source" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
+	<xs:complexType name="targetWeights-type">
+		<xs:annotation>
+			<xs:documentation>
+				Contains the molecular weight of the peptides that this antibody targets.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="weight" type="weight-type" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<!-- Source indicates who has generated the data, HPA=Human Protein Atlas -->
+		<xs:attribute name="source" type="xs:string" use="optional"/>
+	</xs:complexType>
+
+	<xs:complexType name="weight-type">
+		<xs:attribute name="value" type="xs:float" use="required"/>
+		<xs:attribute name="unit" type="xs:string" use="required"/>
+	</xs:complexType>
+
+	<!-- tissue expression type, three possible types exist: tissue, pathology and cell -->
+	<xs:complexType name="tissueExpression-type">
+		<xs:sequence>
+			<xs:element name="summary" type="summary-type" minOccurs="1" maxOccurs="1"/>
+			<!-- pathology does not have verification -->
+			<xs:element name="verification" type="verification-type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="validation" type="validation-ih-type" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="image" type="image-type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="data" type="tissueData-type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<!-- Source indicates who has generated the data, HPA=Human Protein Atlas. Technology used to assess protein expression. -->
+		<xs:attribute name="source" type="xs:string" use="required"/>
+		<xs:attribute name="technology" type="technology-type" use="required"/>
+		<xs:attribute name="assayType" type="assayType-type" use="required"/>
+	</xs:complexType>
+	
+	<!-- Allowed assay types for tissueExpression -->
+	<xs:simpleType name="assayType-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="tissue"/>
+			<xs:enumeration value="pathology"/>
+			<xs:enumeration value="cell"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- Mouse Brain -->
+	<xs:complexType name="mouseBrainStaining">
+		<xs:annotation>
+			<xs:documentation>
+				Contains the available data for mouse brain staining. Each has a summary describing the result, a verification describing the reliability of the data, links to selected images, links to each part of the assay image and the staining intensity at each location. 
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="summary" type="xs:string"/>
+			<xs:element name="verification" type="verification-type"/>
+			<xs:element name="positiveStaining" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="image" type="mouseImage" minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="stainingData" type="mouseStainingData"/>
+		</xs:sequence>
+		<!-- Source indicates who has generated the data, HPA=Human Protein Atlas. Technology used to assess protein expression -->
+		<xs:attribute name="source" type="xs:string" use="required"/>
+		<xs:attribute name="technology" type="technology-type" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="mouseStainingData">
+		<xs:annotation>
+			<xs:documentation>
+				Element for storing staining data for mouse brain assay. Each element contains the location, abbreviation of the location (shortName) and the relative intensity of staining in sample as a decimal value between 0 and 255.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="staining" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="location" type="xs:string" use="required"/>
+					<xs:attribute name="shortName" type="xs:string" use="required"/>
+					<xs:attribute name="relativeIntensity" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:float">
+								<xs:minInclusive value="0"/>
+								<xs:maxInclusive value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="mouseImage">
+		<xs:annotation>
+			<xs:documentation>
+				Images shown in Mouse Brain assay. imageType have either of two values here, selected or assay.
+				Images with imageType="selected" have attribute text and label and contains links to images representative for this antibody in mouse brain
+				Images with imageType="assay" have attribute bregma for describing the coordinate of the tissue slide and the element contains a link to the image.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="imageUrl" type="imageUrl-type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="imageType" type="imageType-type" use="required"/>
+		<xs:attribute name="text" type="xs:string" use="optional"/>
+		<xs:attribute name="label" type="xs:string" use="optional"/>
+		<xs:attribute name="bregma" type="xs:float" use="optional"/>
+	</xs:complexType>
+
+	<!-- subcellular location type : Gene -->
+	<xs:complexType name="cellExpressionGene-type">
+		<xs:sequence>
+			<xs:element name="summary" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="verification" type="verification-type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="image" type="image-type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="data" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="location" type="location-type" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<!-- Source indicates who has generated the data, HPA=Human Protein Atlas. Technology used to assess protein subcellular location. -->
+		<xs:attribute name="source" type="xs:string" use="required"/>
+		<xs:attribute name="technology" type="technology-type" use="required"/>
+	</xs:complexType>
+
+	<!-- subcellular location type : Antibody -->
+	<xs:complexType name="cellExpressionAntibody-type">
+		<!-- Antibody level -->
+		<xs:choice>
+			<xs:sequence>
+				<!-- Subcell, assay is currently divided into subassay based on cell species origin -->
+				<xs:element name="subAssay" minOccurs="1" maxOccurs="4">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="verification" type="verification-type" minOccurs="0" maxOccurs="1"/>
+							<xs:element name="image" type="image-type" minOccurs="0" maxOccurs="1"/>
+							<xs:element name="data" type="subcellData-type" minOccurs="1" maxOccurs="unbounded"/>
+						</xs:sequence>
+						<xs:attribute name="type" type="subAssayType" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="customAssay" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="customAssayType" minOccurs="1" maxOccurs="1">
+								<xs:complexType>
+									<xs:attribute name="assayType" type="xs:string" />
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="assayDescription" minOccurs="1" maxOccurs="1">
+								<xs:complexType>
+									<xs:attribute name="description" type="xs:string" />
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="cellLine" type="xs:string"/>
+							<xs:element name="cellcycledependent" minOccurs="1" maxOccurs="1">
+								<xs:complexType>
+									<xs:attribute name="cellcycle" type="xs:boolean" />
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="imageGroup" minOccurs="1" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="channels" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="channel" minOccurs="1" maxOccurs="unbounded"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="image" minOccurs="1" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="sirna" minOccurs="0" maxOccurs="1">
+														<xs:complexType>
+															<xs:attribute name="sirna" use="required">
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:enumeration value="1"/>
+																		<xs:enumeration value="2"/>
+																		<xs:enumeration value="scrambled"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="imageUrl" type="imageUrl-type"/>
+												</xs:sequence>
+												<xs:attribute name="imageType" type="xs:string" use="required" />
+												<xs:attribute name="scale" type="xs:string" use="optional" />
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:sequence>
+					<xs:element name="verification" type="verification-type" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="validation" type="validation-ih-type" minOccurs="0" maxOccurs="2"/>
+					<xs:element name="image" type="image-type" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="data" type="tissueData-type" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:sequence>
+		</xs:choice>
+		<!-- Source indicates who has generated the data, HPA=Human Protein Atlas. Technology used to assess protein cell expression. -->
+		<xs:attribute name="source" type="xs:string" use="required"/>
+		<xs:attribute name="technology" type="technology-type" use="required"/>
+	</xs:complexType>
+	
+	<!-- Data type -->
+	<xs:complexType name="subcellData-type">
+		<xs:sequence>
+			<xs:element name="cellLine" type="xs:string"/>
+			<xs:choice>
+				<!-- subAssay human/mouse -->
+				<xs:sequence>
+					<xs:element name="location" type="location-type" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="assayImage" type="assayImage-type"/>
+				</xs:sequence>
+				<!-- subAssay=GFP has these -->
+				<xs:sequence>
+					<xs:element name="tag" type="GFPtags"/>
+					<!-- The following two element only exist when tag!=none -->
+					<xs:element name="BACid" minOccurs="0" maxOccurs="1">
+						<xs:complexType>
+							<xs:simpleContent>
+								<xs:extension base="xs:integer">
+									<xs:attribute name="hymanLabId" type="xs:integer" use="required"/>
+								</xs:extension>
+							</xs:simpleContent>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="verification" type="verification-type" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="antibodyData" type="GFPinfo"/>
+					<xs:element name="gfpData" type="GFPinfo" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="assayImage" type="assayImage-type"/>
+				</xs:sequence>
+				<!-- subcellularLocation subAssay=siRNA -->
+				<xs:sequence>
+					<xs:element name="sirna">
+						<xs:complexType>
+							<xs:attribute name="sirna" use="required">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="1"/>
+										<xs:enumeration value="2"/>
+										<xs:enumeration value="scrambled"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="downRegulation" minOccurs="0" maxOccurs="1">
+						<xs:complexType>
+							<xs:attribute name="rfi" type="xs:string" use="required"/>
+							<xs:attribute name="p-value" type="xs:float" use="required"/>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="assayImage" type="assayImage-type"/>
+				</xs:sequence>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- Available subassays for subcellularLocation -->
+	<xs:simpleType name="subAssayType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="human"/>
+			<xs:enumeration value="mouse"/>
+			<xs:enumeration value="gfp"/>
+			<xs:enumeration value="sirna"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- Available Tag-types for subcellularLocation subAssay=GFP -->
+	<xs:simpleType name="GFPtags">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="C-terminal"/>
+			<xs:enumeration value="N-terminal"/>
+			<xs:enumeration value="none"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="GFPinfo">
+		<xs:sequence>
+			<xs:element name="location" type="location-type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- RNA expression type, includes data from both cell line and tissues -->
+	<xs:complexType name="rnaExpression-type">
+		<xs:sequence>
+			<xs:element name="rnaTissueCategory">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="description" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="data" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+				<!-- rnaExpression -->
+					<xs:sequence>
+						<xs:choice minOccurs="1" maxOccurs="1">
+							<xs:element name="cellLine" type="xs:string"/>
+							<xs:element name="tissue" type="xs:string"/>
+						</xs:choice>
+						<xs:element name="level" type="level-type" minOccurs="1" maxOccurs="4"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<!-- Source indicates who has generated the data, HPA=Human Protein Atlas. Technology used to assess RNA expression. -->
+		<xs:attribute name="source" type="xs:string" use="required"/>
+		<xs:attribute name="technology" type="technology-type" use="required"/>
+	</xs:complexType>
+	
+	<!-- Western blot type -->
+	<xs:complexType name="westernBlot-type">
+		<xs:annotation>
+			<xs:documentation>
+				Information about the western blot validation done for the antibody. Contains a summary, verification, antibody dilution used, a link to the blot image and the content in each lane.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="verification" type="verification-type"/>
+			<xs:element name="antibodyDilution">
+				<xs:complexType>
+					<xs:attribute name="dilution" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="image" type="image-type"/>
+			<xs:element name="blotLanes">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="lane" minOccurs="1" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="weight" type="weight-type" minOccurs="0" maxOccurs="unbounded"/>
+								</xs:sequence>
+								<xs:attribute name="laneId" type="xs:integer" use="required"/>
+								<xs:attribute name="laneContent" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<!-- Source indicates who has generated the data, HPA=Human Protein Atlas. Technology used to assess protein molecular weight. -->
+		<xs:attribute name="source" type="xs:string" use="required"/>
+		<xs:attribute name="technology" type="technology-type" use="required"/>
+	</xs:complexType>
+	
+	<!-- protein array type -->
+	<xs:complexType name="proteinArray-type">
+		<xs:sequence>
+			<xs:element name="verification" type="verification-type"/>
+			<xs:element name="antibodyDilution">
+				<xs:complexType>
+					<xs:attribute name="dilution" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="image" type="image-type"/>
+		</xs:sequence>
+		<!-- Source indicates who has generated the data, HPA=Human Protein Atlas. Technology used to assess antibody specificity profile. -->
+		<xs:attribute name="source" type="xs:string" use="required"/>
+		<xs:attribute name="technology" type="technology-type" use="required"/>
+	</xs:complexType>
+
+	<!-- Data type -->
+	<xs:complexType name="tissueData-type">
+		<xs:sequence>
+			<xs:choice>
+				<!-- tissueExpression assayType=pathology,tissue have this -->
+				<xs:sequence>
+					<xs:element name="tissue" type="tissue-type"/>
+					<xs:element name="level" type="level-type" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="tissueCell" type="tissueCell-type" minOccurs="1" maxOccurs="unbounded"/>
+					<xs:element name="patient" type="patient-type" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<!-- tissueExpression assayType = cell -->
+				<xs:sequence>
+					<xs:element name="cellLine" type="xs:string"/>
+					<xs:element name="cellSample" type="cellSample-type" minOccurs="1" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- Sample specific data for tissueExpression Cell-->
+	<xs:complexType name="cellSample-type">
+		<xs:sequence>
+			<xs:element name="numberOfCells" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="percentageStainedCells" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="level" type="level-type" minOccurs="2" maxOccurs="2"/>
+			<xs:element name="assayImage" type="assayImage-type" minOccurs="1" maxOccurs="2"/>
+		 </xs:sequence>
+	</xs:complexType>
+
+	<!-- Group of Celltype-specific data for the corresponding tissue -->
+	<xs:complexType name="tissueCell-type">
+		<xs:sequence>
+			<xs:element name="cellType" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="level" type="level-type" minOccurs="1" maxOccurs="4"/>
+			<!-- Quantity and Location for IH Tissue here -->
+			<xs:element name="quantity" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="location" type="location-type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	
+	<xs:complexType name="patient-type">
+		<xs:sequence>
+			<xs:element name="sex" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="age" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="patientId" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+			<!-- Level, Quantity And Location exist here for IH pathology, for IH tissue it's on tissueCell due to different way of annotating the samples -->
+			<xs:choice minOccurs="0">
+				<!-- IH pathology -->
+				<xs:sequence>
+					<xs:element name="level" type="level-type" minOccurs="1" maxOccurs="4"/>
+					<xs:element name="quantity" type="xs:string" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="location" type="location-type" minOccurs="1" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:choice>
+			<xs:element name="sample" type="sample-type" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Sample specific data for tissueExpression -->
+	<xs:complexType name="sample-type">
+		<xs:sequence>
+			<xs:element name="snomedParameters" type="snomedParameters-type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="assayImage" type="assayImage-type" minOccurs="1" maxOccurs="unbounded"/>
+		 </xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="snomedParameters-type">
+		<xs:sequence>
+			<xs:element name="snomed" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="tissueDescription" type="xs:string"/>
+					<xs:attribute name="snomedCode" type="xs:string"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- Contains multiple images from the same sample or origin -->
+	<xs:complexType name="assayImage-type">
+		<xs:sequence>
+			<xs:element name="image" type="image-type" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Summary type, expression summary -->
+	<xs:complexType name="summary-type">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" use="optional">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<!-- expression summary for tissue or pathology atlas, see http://www.proteinatlas.org/about/assays+annotation#ih -->
+							<xs:enumeration value="tissue"/>
+							<xs:enumeration value="pathology"/>
+							<xs:enumeration value="cell"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
+	<!-- Technology type, IH = immunohistochemistry, see http://www.proteinatlas.org/about/assays+annotation#ih, IF = immunofluorescent confocal microscopy, see http://www.proteinatlas.org/about/assays+annotation#if, RNAseq = RNA sequencing, see http://www.proteinatlas.org/about/assays+annotation#rna, WB = Western blot, see http://www.proteinatlas.org/about/assays+annotation#wb, PA = Proteinarray, see http://www.proteinatlas.org/about/assays+annotation#pa -->
+	<xs:simpleType name="technology-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="IHC"/>
+			<xs:enumeration value="ICC/IF"/>
+			<xs:enumeration value="RNAseq"/>
+			<xs:enumeration value="WB"/>
+			<xs:enumeration value="WBsiRNA"/>
+			<xs:enumeration value="PA"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- ape type, not relevant for antibody element. APE = annotated protein expression, see http://www.proteinatlas.org/about/assays+annotation#ihk or http://www.proteinatlas.org/about/assays+annotation#ifk, selected (antibody with highest validation score, see http://www.proteinatlas.org/about/quality+scoring#ifv), single (only one antibody available) -->
+	<xs:simpleType name="ape-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="APE"/>
+			<xs:enumeration value="selected"/>
+			<xs:enumeration value="single"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- Tissue type, status tissue or pathology atlas, see also http://www.proteinatlas.org/about/assays+annotation#ih -->
+	<xs:complexType name="tissue-type">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="status" use="optional">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="tissue"/>
+							<xs:enumeration value="pathology"/>
+							<xs:enumeration value="cell"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<!-- Level type [want to limit values] -->
+	<xs:complexType name="level-type">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" use="required">
+					<xs:simpleType>
+						<!-- abundance for RNA-Seq data, see http://www.proteinatlas.org/about/assays+annotation#rna, intensity for immunofluorescence data, see http://www.proteinatlas.org/about/assays+annotation#if, expression for APE data, see http://www.proteinatlas.org/about/assays+annotation#ihk, staining for immunohistochemistry data, see http://www.proteinatlas.org/about/assays+annotation#ih -->
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="abundance"/>
+							<xs:enumeration value="intensity"/>
+							<xs:enumeration value="expression"/>
+							<xs:enumeration value="staining"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<!-- tpm (transcripts per million) estimation of RNA expression for RNA-Seq data, count for cell line samples (number of samples at each level) -->
+				<xs:attribute name="tpm" type="xs:float" use="optional"/>
+				<xs:attribute name="count" type="xs:integer" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<!-- Location type, for immunoflourescence based location data, see http://www.proteinatlas.org/about/assays+annotation#if -->
+	<xs:complexType name="location-type">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="status" use="optional">
+					<xs:simpleType>
+						<!-- Main location or additional location, where additional locations are characterized by either a markedly lower staining intensity than the main location, or that it was only observed in a subset of the cell lines. -->
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="main"/>
+							<xs:enumeration value="additional"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<!-- GO ids: GO:0000000 -->
+				<xs:attribute name="GOId" use="optional" type="xs:string" />
+				<xs:attribute name="singleCellVariationIntensity" use="optional" type="xs:boolean" />
+				<xs:attribute name="singleCellVariationSpatial" use="optional" type="xs:boolean" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
+	
+	<xs:complexType name="image-type">
+		<xs:sequence>
+			<xs:element name="tissue" type="tissue-type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="channel" type="channel-type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="imageUrl" type="imageUrl-type" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="imageType" type="imageType-type" use="required"/>
+		<xs:attribute name="description" type="xs:string" use="optional"/>
+		<xs:attribute name="magnification" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	
+	<!-- imageURL holds an URL and size-info (large, medium) -->
+	<xs:complexType name="imageUrl-type">
+		<xs:simpleContent>
+			<xs:extension base="xs:anyURI"/>
+		</xs:simpleContent>
+	</xs:complexType>
+	
+	<!-- Channels used in immunofluorescence imaging -->
+	<xs:complexType name="channel-type">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="color" type="xs:string" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<!-- Types of images used -->
+	<xs:simpleType name="imageType-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="selected"/>
+			<xs:enumeration value="selectedNormal"/>
+			<xs:enumeration value="sampleImage"/>
+			<xs:enumeration value="assay"/>
+			<xs:enumeration value="area"/>
+			<xs:enumeration value="cells"/>
+			<xs:enumeration value="plot"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+
+	<!-- Verification type [want to limit values], data quality assurance -->
+	<xs:complexType name="verification-type">
+		<xs:simpleContent>
+			<xs:extension base="verification-values">
+				<xs:attribute name="type" use="required">
+					<xs:simpleType>
+						<!-- Data quality assessed by validation (Enhanced/Supportive/Approved/Uncertain), see http://www.proteinatlas.org/about/antibody+validation -->
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="validation"/>
+							<xs:enumeration value="reliability"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="description" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
+	<xs:simpleType name="verification-values">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="enhanced"/>
+			<xs:enumeration value="supported"/>
+			<xs:enumeration value="approved"/>
+			<xs:enumeration value="uncertain"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="validation-ih-type">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" use="required">
+					<xs:simpleType>
+						<!-- Antibody Validation, see http://www.proteinatlas.org/about/quality+scoring#ihcv -->
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="literatureConformity"/>
+							<xs:enumeration value="RNAConsistency"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema> 

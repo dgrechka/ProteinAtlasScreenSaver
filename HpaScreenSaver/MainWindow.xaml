@@ -1,0 +1,112 @@
+﻿<Window x:Class="HpaScreenSaver.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HpaScreenSaver"
+        mc:Ignorable="d"
+        Title="MainWindow" Background="Transparent"
+        KeyDown="Window_KeyDown"
+        MouseDown="Window_MouseDown"
+        WindowStartupLocation="Manual"
+        WindowStyle="None" ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <DropShadowEffect x:Key="InfoTextShadow"
+          ShadowDepth="2"
+          Direction="135"
+          Color="Gold"
+          Opacity="0.35"
+          BlurRadius="0.0" />
+        <Style x:Key="InfoText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Yellow" />
+            <Setter Property="Margin" Value="3" />
+            <Setter Property="Padding" Value="3" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Effect" Value="{StaticResource InfoTextShadow}" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Image Source="{Binding Image.LocalFileName}" Stretch="UniformToFill" />
+
+        <Grid Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Style="{StaticResource InfoText}" Text="Gene:"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Column="1" Text="{Binding Image.GeneName, FallbackValue=loading...}"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="2" Text="Cell line:"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="2" Grid.Column="1" Text="{Binding Image.CellLine, FallbackValue=loading...}"/>
+        </Grid>
+        <Grid Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <ItemsControl ItemsSource="{Binding Image.MainCellLocations}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Style="{StaticResource InfoText}" Text="{Binding ., FallbackValue=loading...}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding Image.AdditionalCellLocations}" Grid.Row="1">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Style="{StaticResource InfoText}" Text="{Binding ., FallbackValue=loading...}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding Image.OtherCellLocations}" Grid.Row="2">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Style="{StaticResource InfoText}" Text="{Binding ., FallbackValue=loading...}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+        <Grid Margin="20" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="0" Text="Verification:"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="0" Grid.Column="1" Text="{Binding Image.Verification, FallbackValue=loading...}"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="1" Text="Technology:"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="1" Grid.Column="1" Text="{Binding Image.Technology, FallbackValue=loading...}"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="2" Text="Source:"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="2" Grid.Column="1" Text="{Binding Image.Source, FallbackValue=loading...}"/>
+        </Grid>
+        <Grid Margin="20" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="0" Text="Antigen:"/>
+            <TextBlock Style="{StaticResource InfoText}" Grid.Row="0" Grid.Column="1" Text="{Binding Image.AntigenSeq, FallbackValue=loading...}"/>
+        </Grid>
+    </Grid>
+</Window>
