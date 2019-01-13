@@ -101,13 +101,17 @@ let initAsync() =
 let initTask() =
     Async.StartAsTask(initAsync())    
 
+if not (Directory.Exists xmlCacheDir) then
+        Directory.CreateDirectory xmlCacheDir |> ignore
+
+if not (Directory.Exists imageCacheDir) then
+        Directory.CreateDirectory imageCacheDir |> ignore
+            
+
 let getNewRandXmlPathAsync(genes:Gene array) =
     async {        
         let r = Random()
-
-        if not (Directory.Exists xmlCacheDir) then
-            Directory.CreateDirectory xmlCacheDir |> ignore
-
+        
         let gene = genes.[r.Next(genes.Length)].Gene
     
         let filename = sprintf "%s.xml" gene
@@ -206,9 +210,6 @@ let getRandImageAsync() =
                         Array.skip xmlCacheSize filesCrTimes
                     else Array.empty
                 Array.iter (fun file -> File.Delete file) toDelete
-            
-            if not (Directory.Exists imageCacheDir) then
-                Directory.CreateDirectory imageCacheDir |> ignore
             
             if(counter % 100 = 5) then
                 // clearing Image cache
